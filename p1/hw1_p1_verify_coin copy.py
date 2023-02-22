@@ -20,18 +20,23 @@ def verify_coin(coin_txt, watermark_hex):
     d = None
     with open(coin_txt) as f:
         for i, c_i in enumerate(f):
-            c_i_hash = bin(int(hashlib.sha256(bytes.fromhex(c_i)).hexdigest(), base=16)).lstrip('0b').zfill(256)[:n]
-            print(c_i_hash) 
+            c_i_hash = bin(int(hashlib.sha256(bytes.fromhex(
+                c_i)).hexdigest(), base=16)).lstrip('0b').zfill(256)[:n]
+            print(c_i_hash)
             if i == 0:
                 d = c_i_hash
             if c_i[:watermark_length] != watermark_hex or c_i_hash != d:
                 return False
-    
+
     return False if i+1 != k else True
 
 
+
+
 if __name__ == "__main__":
-    coin_txt, watermark = sys.argv[1:]
+    coin_txt = '/Users/ruijiazhu/Downloads/given-code/p1/coin.txt' #your coin.txt file's location
+    watermark =  '1010010011000111' # the watermark you generate
+    # coin_txt, watermark = sys.argv[1:]
     l = (len(watermark) + 3) // 4
     watermark_hex = '{:0{}x}'.format(int(watermark, 2), l)
     print(watermark_hex)
