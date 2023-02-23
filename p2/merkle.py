@@ -16,10 +16,12 @@ def verify(obj: str, proof: str, commitment: str) -> bool:
 
 class Prover:
     def __init__(self):
-        pass
+        self.tree = []
+        self.root = None
+        self.objects = []
     # return a hex
 
-    def hash(data):
+    def hash(self, data):
         return hashlib.sha256(data.encode())
 
     def get_hex_form(self, data):
@@ -27,78 +29,76 @@ class Prover:
 
 # Build a merkle tree and return the commitment
     def build_merkle_tree(self, objects: List[str]) -> str:
-        if len(objects) == 0:
-            return 'error message: the input is an empty list!'
-        # Compute the hash value of each object
+        self.tree = tree
+        self.objects = objects
+        if (len(objects)) <= 1:
+            raise ValueError('there is less than 1 object in the list!')
+        hash_values_list = []
+        subtree_dict = []
         for obj in objects:
-            hash_values_list = self.get_hex_form(obj) 
+            hash_values_list.append(self.get_hex_form(obj))
+        level = 0
+        subtree_dict[level] = hash_values_list
 
-        # duplicate the last object in the list if the number of objects is odd
-        list_length = len(hash_values_list)
-        if list_length % 2 != 0:
-            lastObject = hash_values_list[-1]
-            hash_values_list.append(lastObject)
-            list_length = list_length + 1
+        self.tree.append(subtree_dict)
 
-        # if the number of objects is even
-        # Make each object's hash value to be nodes in the tree.
-        tree = []
-        for i in range(list_length):
-            tree.append(hash_values_list[i])
-            # leave out the root node
-            for i in range(list_length - 1):
-                tree.append(None)
-        # Compute the hash value of each non-leaf node  adding
-        # by summing the hash values of the two child nodes and hashing the sum result.
-
-        for i in range(list_length - 2, -1, -1):
-            left_child = tree[2 * i + 1]
-            right_child = tree[2 * i + 2]
-            parent_hash = self.hash(left_child + right_child).hexdigest()
-            tree[i] = parent_hash
-
+        while len(tree[0]) < len(obj):
+            parenttree_dict = []
+            level = 1
+            for i in range(0, len(objects), 2):
+                    if i + 1 < len(objects):
+                        parenttree_dict[level] = (
+                            self.get_hex_form(subtree_dict[level][i] + subtree_dict[level][i+1]))
+                    else:
+                        parenttree_dict[level] = (
+                            self.get_hex_form(subtree_dict[level][i] + subtree_dict[level][i]))
+            
+            self.tree.append(parenttree_dict[level])
+            level = level + 1
+   #         subtree = parenttree_dict
+            self.root = tree[0]
         return tree[0]
 
     def get_leaf(self, index: int) -> Optional[str]:
-        for node in self.tree:
-            if node.left and node.right:
-                #initiate the leaf nodes list
-                leaf_nodes = []
-                if index < 0 or index >= len(leaf_nodes):
-                    return None
-                return leaf_nodes[index].value
+        if index < 0 or index >= len(self.objects):
+            return None
+        return self.objects[index]
 
+    def generate_proof(self, index: int) -> Optional[str]:
+        # finds the index of the object
+        if index < 0:
+            return None
+        if index >= len(self.objects):
+            return None
 
-def generate_proof(self, index: int) -> Optional[str]:
-    # finds the index of the object
-    if index < 0:
-        return ValueError("index is smaller than 0 ")
-    if index >= len(self.objects):
-        return ValueError("index is larger than the length of the object string")
+        proofArray = []
+        # Returns the proof as an array of hash objects
+        # for the leaf at the given index.
+        tree = self.tree
+        for i in range(0, len(tree), 2):
+            if (index % 2 == 0):  # this is a even node
+                print('are we in this branch')
+                sibling_object = self.get_leaf(index+1)
+                print('what is printing this ')
+                proofArray.append(f'{sibling_object}' + '')
+                index = index // 2
+            else:  # this is an odd node
+                print('we are in else ')
+                sibling_object = self.get_leaf(index-1)
+                proofArray.append(f'{sibling_object}' + '')
 
-    # store the hash value of nodes in this merkle_proof
-    merkle_proof = []
+            # take the floor of the index to get to the parent node
 
-    # Start from the leaf node and find the path to the root node
-    curr_index = index + self.list_length - 1
-
-    while curr_index > 0:
-        # Find the sibling index
-        if curr_index % 2 == 0:  # if this is even index
-            sibling_index = curr_index - 1
-        else:  # if this is odd index
-            sibling_index = curr_index + 1
-        # Append the sibling value to the proof
-        merkle_proof.append(self.tree[sibling_index])
-
-        # move the current index to its parent node
-        curr_index = (curr_index - 1) // 2
-
-    return merkle_proof
-
-
+        return proofArray
 
 
 # Convert the proof string to a list of hashes.
 # Apply the SHA-256 hash function to pairs of hashes, working from the bottom of the tree up to the root, using the proof to determine which hashes to include in each step. This should result in a single hash, which should match the commitment string.
 # If the final hash matches the commitment string, return True, indicating that the proof is valid. Otherwise, return False, indicating that the proof is invalid.
+if __name__ == "__main__":
+
+    objects = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    tree = Prover()
+    print(tree.build_merkle_tree(objects))
+    # tree.get_leaf(1)
+    # print(tree.generate_proof(2))
