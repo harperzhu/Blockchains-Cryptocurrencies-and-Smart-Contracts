@@ -49,7 +49,6 @@ class MTSignature:
                 number_nodes = 2**(d-level)
                 level_values = []
                 
-                
                 #route back to the parent node
             for i in range(number_nodes//2):
                 if(number_nodes %2 == 0): 
@@ -59,7 +58,7 @@ class MTSignature:
                     level_values.append(node_value)
                     tree.append(node_value)
                 else: 
-                    # this is when there's odd number of nodes in this level
+                    #when there's odd number of nodes in this level
                     only_node = tree.pop(0)
                     node_value = hashlib.sha256(int.to_bytes((number_nodes//2), 32, 'big') + only_node).digest()
                     level_values.append(only_node)

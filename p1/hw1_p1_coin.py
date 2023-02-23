@@ -30,13 +30,22 @@ def get_byte_form(watermark, i):
     # the input watermark is already in byte form
     # 64 bits hex
 
-    hex_str = hex(int(watermark + i,16))[2:]
+    # print("watermark = ", watermark)
+    # print("i = ", i)
+    
+    byte_str = int(watermark + i, 2).to_bytes(8,'big')
+    
+    # print('i type' , type(i))
+    # print('watermark' , type(watermark_byte))
+    print(byte_str)
+    
+    # byte_str = watermark_byte + i
+    # print('byte string' + byte_str)
     # l = (len(watermark) + 3) // 4
     # watermark_hex = "{:0{}x}".format(int(watermark, 2), l)
     # print(hex_str)
     # print(i)
     # hex_str = hex_str.hex()
-    byte_str = bytes.fromhex(hex_str)
     return byte_str
 
 
@@ -50,11 +59,14 @@ def get_hashed_coin_bytes(byte_str):
 # Each preimage ci must be 8 bytes (64-bits) long and have w as its first 16 bits.
 def find_coin(watermark):
 
-    random_bits = str(random.getrandbits(48))
+    random_bits = bin(secrets.randbits(48)).lstrip('0b').zfill(48)
+    # random_bits = int(random_bits,2).to_bytes(6,'big')
+    
     #this is writing 14, 15 
+    print(random_bits)
     print(len(random_bits))
-    while len(random_bits) == 48:
-        random_bits = random.getrandbits(48)
+    # while len(random_bits) == 48:
+        # random_bits = secrets.randbits(48)
     #this is writing 14, 15 
     print(len(random_bits))
     # random_bits = hex(int(random_bits, 16))
@@ -66,9 +78,11 @@ def find_coin(watermark):
     same_coin = []
     did_find_coin = False
     while not did_find_coin:
-        random_bits = str(random.getrandbits(48))
-        while len(random_bits) == 48:
-            random_bits = random.getrandbits(48)
+        random_bits = bin(secrets.randbits(48)).lstrip('0b').zfill(48)
+        # random_bits = int(random_bits,2).to_bytes(6,'big')
+        
+        # while len(random_bits) == 48:
+        #     random_bits = random.getrandbits(48)
         # random_bits = (int(random_bits, 16))[2:18]
         # print(random_bits)
         c_j = get_byte_form(watermark, random_bits)
@@ -139,3 +153,4 @@ def generate_netid(netID):
 
 if __name__ == "__main__":
     find_coin(watermark=get_watermark(netID=netID))
+    
