@@ -19,11 +19,11 @@ def test_basic(objects):
         positive_indices += [0,n-1]
         negative_indices = [random.randint(n, 2*n) for x in range(2)]
         negative_indices += [n]
-        print(positive_indices)
+        # print(positive_indices)
         for i in positive_indices:
             try:
                 ret = p.get_leaf(i)
-                print(ret)
+                # print(ret)
                 if ret == objects[i] or ret == sha256(objects[i].encode()).hexdigest():
                     _leaf_passed += 1
             except:
